@@ -1,7 +1,7 @@
 package br.com.dock.access.factory;
 
 import br.com.dock.access.AddAccessRequest;
-import br.com.dock.access.dto.AccessEvent;
+import br.com.dock.access.dto.AccessEventMessage;
 import br.com.dock.access.dto.DeviceInfo;
 import br.com.dock.access.dto.GeoLocation;
 import br.com.dock.access.helper.InstantHelper;
@@ -10,37 +10,39 @@ import java.util.UUID;
 
 public class AccessEventFactory {
 
-    public static AccessEvent fromProto(AddAccessRequest proto) {
+    public static AccessEventMessage fromProto(AddAccessRequest proto) {
 
-        return AccessEvent.builder()
-                .requestId(UUID.fromString(proto.getRequestId()))
-                .clientId(proto.getClientId())
-                .clientName(proto.getClientName())
-                .timestamp(InstantHelper.parseInstant(proto.getTimestamp()))
-                .geolocation(parseGeolocation(proto))
-                .device(parseDevice(proto))
-                .build();
+        AccessEventMessage msg = new AccessEventMessage();
+        msg.setRequestId(UUID.fromString(proto.getRequestId()));
+        msg.setClientId(proto.getClientId());
+        msg.setClientName(proto.getClientName());
+        msg.setTimestamp(InstantHelper.parseInstant(proto.getTimestamp()));
+        msg.setGeolocation(parseGeolocation(proto));
+        msg.setDevice(parseDevice(proto));
+
+        return msg;
     }
 
     private static GeoLocation parseGeolocation(AddAccessRequest proto) {
         if (!proto.hasGeolocation()) return null;
 
-        return GeoLocation.builder()
-                .latitude(proto.getGeolocation().getLatitude())
-                .longitude(proto.getGeolocation().getLongitude())
-                .build();
+        GeoLocation geo = new GeoLocation();
+        geo.setLatitude(proto.getGeolocation().getLatitude());
+        geo.setLongitude(proto.getGeolocation().getLongitude());
+        return geo;
     }
 
     private static DeviceInfo parseDevice(AddAccessRequest proto) {
         if (!proto.hasDevice()) return null;
 
         var d = proto.getDevice();
+        DeviceInfo device = new DeviceInfo();
 
-        return DeviceInfo.builder()
-                .type(d.getType())
-                .os(d.getOs())
-                .version(d.getVersion())
-                .ipAddress(d.getIpAddress())
-                .build();
+        device.setType(d.getType());
+        device.setOs(d.getOs());
+        device.setVersion(d.getVersion());
+        device.setIpAddress(d.getIpAddress());
+
+        return device;
     }
 }

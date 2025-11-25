@@ -16,8 +16,7 @@
     </parent>
 
     <properties>
-        <maven.compiler.source>21</maven.compiler.source>
-        <maven.compiler.target>21</maven.compiler.target>
+        <java.version>21</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
         <grpc.version>1.74.0</grpc.version>
@@ -25,10 +24,25 @@
     </properties>
 
     <dependencies>
-        <!-- Spring Boot -->
+        <!-- Spring  -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-json</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-messaging</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.kafka</groupId>
+            <artifactId>spring-kafka</artifactId>
         </dependency>
 
         <!-- gRPC -->
@@ -60,14 +74,6 @@
             <artifactId>protobuf-java</artifactId>
             <version>${protobuf.version}</version>
         </dependency>
-
-        <!-- Lombok -->
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <version>1.18.34</version>
-            <scope>provided</scope>
-        </dependency>
     </dependencies>
 
     <build>
@@ -88,8 +94,6 @@
                     <protocArtifact>
                         com.google.protobuf:protoc:${protobuf.version}:exe:${os.detected.classifier}
                     </protocArtifact>
-
-                    <!-- se estiver gerando stubs gRPC -->
                     <pluginId>grpc-java</pluginId>
                     <pluginArtifact>
                         io.grpc:protoc-gen-grpc-java:${grpc.version}:exe:${os.detected.classifier}

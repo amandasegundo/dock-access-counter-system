@@ -3,61 +3,66 @@ package br.com.dock.access;
 import br.com.dock.access.grpc.AccessServiceImpl;
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
+import jakarta.annotation.PreDestroy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import java.io.IOException;
 
-public class Application {
+@SpringBootApplication
+public class Application implements CommandLineRunner {
 
-    private static final Logger logger = LoggerFactory.getLogger(Application.class);
+    private static final Logger log = LoggerFactory.getLogger(Application.class);
+
+    private final AccessServiceImpl accessService;
+
+    @Value("${grpc.port}")
+    private int port;
 
     private Server server;
 
-    private void start() throws IOException {
-        logger.info("Creating Application");
+    public Application(AccessServiceImpl accessService) {
+        this.accessService = accessService;
+    }
 
-        int port = 9090;
+    public static void main(String[] args) {
+        SpringApplication.run(Application.class, args);
+    }
+
+    @Override
+    public void run(String... args) throws Exception {
+        start();
+        blockUntilShutdown();
+    }
+
+    private void start() throws IOException {
+        log.info("Starting gRPC server...");
 
         server = ServerBuilder
                 .forPort(port)
-                .addService(new AccessServiceImpl())
+                .addService(accessService)
                 .build()
                 .start();
 
-        logger.info("gRPC server started on port {}", port);
-
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            logger.info("Shutting down gRPC server...");
-            try {
-                Application.this.stop();
-            } catch (Exception e) {
-                logger.error(e.getMessage());
-                e.printStackTrace(System.err);
-            }
-            logger.info("Server shut down.");
-        }));
+        log.info("gRPC server started on port {}", port);
     }
 
-    private void stop() {
+    @PreDestroy
+    public void stop() {
+        log.info("Shutting down gRPC server...");
         if (server != null) {
             server.shutdown();
         }
+        log.info("gRPC server shut down.");
     }
 
     private void blockUntilShutdown() throws InterruptedException {
         if (server != null) {
             server.awaitTermination();
-        }
-    }
-
-    public static void main(String[] args){
-        try {
-            Application server = new Application();
-            server.start();
-            server.blockUntilShutdown();
-        } catch (Exception e) {
-            logger.error("Failed to start server. {}", e.toString());
         }
     }
 }
