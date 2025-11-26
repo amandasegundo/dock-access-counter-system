@@ -4,7 +4,6 @@ import br.com.dock.access.AddAccessRequest;
 import br.com.dock.access.dto.AccessEventMessage;
 import br.com.dock.access.dto.DeviceInfo;
 import br.com.dock.access.dto.GeoLocation;
-import br.com.dock.access.helper.InstantHelper;
 
 import java.util.UUID;
 
@@ -16,7 +15,7 @@ public class AccessEventFactory {
         msg.setRequestId(UUID.fromString(proto.getRequestId()));
         msg.setClientId(proto.getClientId());
         msg.setClientName(proto.getClientName());
-        msg.setTimestamp(InstantHelper.parseInstant(proto.getTimestamp()));
+        msg.setTimestamp(proto.getTimestamp());
         msg.setGeolocation(parseGeolocation(proto));
         msg.setDevice(parseDevice(proto));
 

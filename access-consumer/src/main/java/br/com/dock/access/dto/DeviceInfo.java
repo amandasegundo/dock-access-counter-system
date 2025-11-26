@@ -48,13 +48,13 @@ public class DeviceInfo {
         this.ipAddress = ipAddress;
     }
 
-    @Override
-    public String toString() {
-        return "DeviceInfo{" +
-                "type='" + type + '\'' +
-                ", os='" + os + '\'' +
-                ", version='" + version + '\'' +
-                ", ipAddress='" + ipAddress + '\'' +
-                '}';
-    }
+        @Override
+        public String toString() {
+            return "DeviceInfo{" +
+                    "type='" + type + '\'' +
+                    ", os='" + os + '\'' +
+                    ", version='" + version + '\'' +
+                    ", ipAddress='" + ipAddress + '\'' +
+                    '}';
+        }
 }

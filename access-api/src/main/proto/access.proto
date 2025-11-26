@@ -14,7 +14,7 @@ message AddAccessRequest {
     string requestId = 1;
     int32 clientId = 2;
     string clientName = 3;
-    string timestamp = 4;
+    int64 timestamp = 4;
 
     Geolocation geolocation = 5;
     Device device = 6;
