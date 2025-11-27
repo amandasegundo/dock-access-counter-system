@@ -32,7 +32,7 @@ public class KafkaEventProducer {
             log.info("Sending message [{}] to topic [{}]", payload, output);
             kafkaTemplate.send(message);
 
-            log.info("Message sent successfully [{}]", payload);
+            log.info("Message sent successfully, RequestId [{}]", payload.getRequestId());
         } catch (KafkaException e) {
             log.error("Failed to send message to Kafka [{}]", payload);
             throw e;

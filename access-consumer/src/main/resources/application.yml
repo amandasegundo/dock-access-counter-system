@@ -1,7 +1,8 @@
-# General
+# APP
 app:
   kafka:
     topic: access-topic
+  access-limit: 1000000
 
 # KAFKA
 spring:
@@ -12,3 +13,13 @@ spring:
       auto-offset-reset: earliest
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+
+# REDIS
+redisson:
+  config: |
+    singleServerConfig:
+      address: "redis://localhost:6379"
+      connectionMinimumIdleSize: 2
+      connectionPoolSize: 10
+    threads: 4
+    nettyThreads: 4
