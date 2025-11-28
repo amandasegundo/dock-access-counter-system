@@ -25,11 +25,11 @@ Ela também verifica a quantidade de acessos, e, caso já tenha atigindo o limit
 
 | Tecnologia       | Descrição                                                                 |
 |------------------|---------------------------------------------------------------------------|
-| **gRPC**         | Tipo de comunicação entre serviços de forma rápida, eficiente e tipada.   |
-| **Protobuf Plugin** | Gera automaticamente todas as classes necessárias para gRPC.           |
-| **Spring Boot**  | Fornece a base da aplicação e gerenciamento de dependências.              |
-| **Spring Kafka**        | Usado na produção de mensagens para ingestão de eventos de acessos no Kafka.                  |
-| **Redisson**        | Cliente do banco de dados Redis que armazena a contagem de acessos a serem consultados.                   |
+| gRPC         | Tipo de comunicação entre serviços de forma rápida, eficiente e tipada.   |
+| Protobuf Plugin | Gera automaticamente todas as classes necessárias para gRPC.           |
+| Spring Boot  | Fornece a base da aplicação e gerenciamento de dependências.              |
+| Spring Kafka        | Usado na produção de mensagens para ingestão de eventos de acessos no Kafka.                  |
+| Redisson        | Cliente do banco de dados Redis que armazena a contagem de acessos a serem consultados.                   |
 
 #### Payload
 
@@ -59,6 +59,7 @@ O payload é baseado no ```access.proto``` e tem como exemplo:
 A API pode retornar uma resposta de sucesso ou uma de falha.
 
 ##### Sucesso
+
 ```json
 {
     "success": true,
@@ -67,6 +68,7 @@ A API pode retornar uma resposta de sucesso ou uma de falha.
 ```
 
 ##### Falha
+
 ```json
 {
     "success": false,
@@ -82,9 +84,29 @@ A API pode retornar uma resposta de sucesso ou uma de falha.
 
 | Tecnologia       | Descrição                                                                 |
 |------------------|---------------------------------------------------------------------------|
-| **Spring Boot**  | Fornece a base da aplicação e gerenciamento de dependências.              |
-| **Spring Kafka**        | Usado no consumo de mensagens dos eventos de acessos no Kafka para a contabilização.                  |
-| **Redisson**        | Cliente do banco de dados Redis que persiste a contabilização.                   |
-| **Jackson Databind** | Usado para converter JSON em objetos Java. |
+| Spring Boot  | Fornece a base da aplicação e gerenciamento de dependências.              |
+| Spring Kafka        | Usado no consumo de mensagens dos eventos de acessos no Kafka para a contabilização.                  |
+| Redisson        | Cliente do banco de dados Redis que persiste a contabilização.                   |
+| Jackson Databind | Usado para converter JSON em objetos Java. |
+
+## Docker Compose
+
+São utilizados os clientes abaixos para consultar os dados envolvidos no sistema:
+
+### Kafka UI
+
+Interface web para visualizar tópicos, mensagens, consumers e configs do Kafka.
+
+#### Endereço
+
+http://localhost:8090/
+
+### Redis Insight
+
+Interface gráfica para explorar dados, chaves e estatísticas do Redis.
+
+#### Endereço
+
+http://localhost:5540/
 
 
