@@ -1,6 +1,9 @@
 package br.com.dock.access.service;
 
 import br.com.dock.access.client.RedisClient;
+import br.com.dock.access.dto.AccessEventMessage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -14,11 +17,25 @@ public class AccessCounterService {
 
     private final RedisClient redisClient;
 
+    private static final Logger log = LoggerFactory.getLogger(AccessCounterService.class);
+
     public AccessCounterService(RedisClient redisClient) {
         this.redisClient = redisClient;
     }
 
-    public long increment() {
+    public void process(AccessEventMessage message){
+        log.info("Message received successfully: requestId [{}]", message.getRequestId());
+
+        long count = increment();
+
+        if (count == -1L) {
+            log.warn("Access limit reached [{}]", accessLimit);
+        } else {
+            log.info("Access counted, current count [{}]", count);
+        }
+    }
+
+    private long increment() {
         long current = redisClient.increment(KEY);
 
         if (current > accessLimit) {
@@ -27,9 +44,5 @@ public class AccessCounterService {
         }
 
         return current;
-    }
-
-    public long getAccessLimit() {
-        return accessLimit;
     }
 }

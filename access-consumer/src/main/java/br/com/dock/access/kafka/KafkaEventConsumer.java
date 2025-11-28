@@ -28,18 +28,9 @@ public class KafkaEventConsumer {
     public void listen(String messageJson) {
         try {
             AccessEventMessage message = objectMapper.readValue(messageJson, AccessEventMessage.class);
-            log.info("Message received successfully: requestId [{}]", message.getRequestId());
-
-            long count = accessCounterService.increment();
-
-            if (count == -1L) {
-                log.warn("Access limit reached [{}]", accessCounterService.getAccessLimit());
-            } else {
-                log.info("Access counted, current ACCESS_COUNT [{}]", count);
-            }
-
+            accessCounterService.process(message);
         } catch (Exception e) {
-            log.error("Error deserializing message: [{}]", messageJson, e);
+            log.error("Error processing message: [{}]", messageJson, e);
         }
     }
 }
