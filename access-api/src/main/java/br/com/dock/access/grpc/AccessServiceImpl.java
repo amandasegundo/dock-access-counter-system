@@ -20,10 +20,11 @@ public class AccessServiceImpl extends AccessServiceGrpc.AccessServiceImplBase {
     @Override
     public void addAccess(AddAccessRequest request, StreamObserver<AddAccessResponse> responseObserver) {
         var eventMessage = AccessEventFactory.fromProto(request);
-        kafkaEventProducer.processMessage(eventMessage);
+        var eventResponse = kafkaEventProducer.processMessage(eventMessage);
 
         AddAccessResponse response = AddAccessResponse.newBuilder()
-                .setSuccess(true)
+                .setSuccess(eventResponse.isSuccess())
+                .setMessage(eventResponse.getMessage())
                 .build();
 
         responseObserver.onNext(response);

@@ -1,3 +1,7 @@
+# APP
+app:
+  access-limit: 1000000
+
 # GRPC
 grpc:
   port: 9090
@@ -17,3 +21,13 @@ spring:
       retry.backoff.ms: 1000
     security:
       protocol: PLAINTEXT
+
+# REDIS
+redisson:
+  config: |
+    singleServerConfig:
+      address: "redis://localhost:6379"
+      connectionMinimumIdleSize: 2
+      connectionPoolSize: 10
+    threads: 4
+    nettyThreads: 4
