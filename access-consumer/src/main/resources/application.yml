@@ -7,19 +7,13 @@ app:
 # KAFKA
 spring:
   kafka:
-    bootstrap-servers: localhost:9092
+    bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
     consumer:
       group-id: access-consumer-group
       auto-offset-reset: earliest
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-
-# REDIS
-redisson:
-  config: |
-    singleServerConfig:
-      address: "redis://localhost:6379"
-      connectionMinimumIdleSize: 2
-      connectionPoolSize: 10
-    threads: 4
-    nettyThreads: 4
+  data:
+    redis:
+      host: ${SPRING_DATA_REDIS_HOST:localhost}
+      port: ${SPRING_DATA_REDIS_PORT:6379}

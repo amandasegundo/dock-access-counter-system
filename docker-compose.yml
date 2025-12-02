@@ -95,6 +95,24 @@ services:
     container_name: access-api
     ports:
       - "9090:9090"
+    depends_on:
+      - kafka
+      - redis
+    environment:
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+      SPRING_DATA_REDIS_HOST: redis
+      SPRING_DATA_REDIS_PORT: 6379
+    networks:
+      - app-network
+
+  access-consumer:
+    build:
+      context: ./access-consumer
+      dockerfile: Dockerfile
+    container_name: access-consumer
+    depends_on:
+      - kafka
+      - redis
     environment:
       SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:29092
       SPRING_DATA_REDIS_HOST: redis

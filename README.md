@@ -109,4 +109,8 @@ Interface gráfica para explorar dados, chaves e estatísticas do Redis.
 
 http://localhost:5540/
 
+#### Conexão
+
+É necessário adicionar uma base de dados com a Connection URL igual a ```redis://redis:6379```
+
 
