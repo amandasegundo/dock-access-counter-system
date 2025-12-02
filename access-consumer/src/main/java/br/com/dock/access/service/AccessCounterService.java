@@ -36,13 +36,15 @@ public class AccessCounterService {
     }
 
     private long increment() {
-        long current = redisClient.increment(KEY);
-
-        if (current > accessLimit) {
-            redisClient.decrement(KEY);
+        if (isValid()) {
+            return redisClient.increment(KEY);
+        } else {
             return -1;
         }
+    }
 
-        return current;
+    public boolean isValid(){
+        long newCount = redisClient.getLong(KEY) + 1;
+        return newCount <= accessLimit;
     }
 }
