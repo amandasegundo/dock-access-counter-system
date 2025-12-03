@@ -6,11 +6,15 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.boot.test.system.CapturedOutput;
+import org.springframework.boot.test.system.OutputCaptureExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
+@ExtendWith(OutputCaptureExtension.class)
 class GrpcServerTest {
 
     private static final int PORT = 9090;
@@ -19,7 +23,7 @@ class GrpcServerTest {
     private AccessServiceImpl accessService;
 
     @Test
-    void runShouldStartServerAndBlockUntilShutdown() throws Exception {
+    void runShouldStartServerAndBlockUntilShutdown(CapturedOutput output) throws Exception {
         // Arrange
         GrpcServer grpcServer = new GrpcServer(accessService);
         ReflectionTestUtils.setField(grpcServer, "port", PORT);
@@ -43,11 +47,14 @@ class GrpcServerTest {
             verify(server).start();
             verify(server).awaitTermination();
             verifyNoMoreInteractions(serverBuilder, server);
+
+            assertTrue(output.getOut().contains("Starting gRPC server..."));
+            assertTrue(output.getOut().contains("gRPC server started on port " + PORT));
         }
     }
 
     @Test
-    void stopShouldShutdownServerWhenServerIsNotNull() {
+    void stopShouldShutdownServerWhenServerIsNotNull(CapturedOutput output) {
         // Arrange
         GrpcServer grpcServer = new GrpcServer(accessService);
         Server server = mock(Server.class);
@@ -59,6 +66,9 @@ class GrpcServerTest {
         // Assert
         verify(server).shutdown();
         verifyNoMoreInteractions(server);
+
+        assertTrue(output.getOut().contains("Shutting down gRPC server..."));
+        assertTrue(output.getOut().contains("gRPC server shut down."));
     }
 
     @Test
