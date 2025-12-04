@@ -98,7 +98,6 @@ class KafkaEventProducerTest {
 
     @Test
     void processMessageShouldThrowKafkaExceptionWhenSendFails() {
-        // Arrange
         AccessEventMessage payload = new AccessEventMessage();
         payload.setRequestId(UUID.randomUUID());
 
@@ -107,7 +106,6 @@ class KafkaEventProducerTest {
                 .when(kafkaTemplate)
                 .send(any(Message.class));
 
-        // Act + Assert
         assertThrows(KafkaException.class, () -> producer.processMessage(payload));
 
         verify(accessCounterService).isValid();
