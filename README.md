@@ -13,7 +13,7 @@ Este projeto tem como objetivo realizar o desenvolvimento de um desafio da equip
 
 ### Diagrama da arquitetura no modelo C4 Level
 
-![Diagrama da arquitetura no modelo C4 Level](docs/access-counter.drawio.png)
+![Diagrama da arquitetura no modelo C4 Level](docs/access-counter-c4-level.drawio.png)
 
 ### access-api
 
@@ -91,25 +91,39 @@ A API pode retornar uma resposta de sucesso ou uma de falha.
 
 ## Docker Compose
 
-São utilizados os clientes abaixos para consultar os dados envolvidos no sistema:
+O projeto e as tecnologias consumidas estão em containers e foi utilizado o Docker Compose.
 
-### Kafka UI
+Recomenda-se utilizar o Podman para executar.
+
+### Comandos úteis
+
+| Comando                               | Descrição                                                              |
+|---------------------------------------|------------------------------------------------------------------------|
+| `podman machine start`                | Inicia a máquina virtual do Podman.                                    |
+| `podman compose down -v`              | Derruba todos os containers e remove volumes associados.               |
+| `podman compose up -d --build`        | Sobe os containers em modo detached, reconstruindo as imagens antes.   |
+
+#### Clients
+
+São utilizados os clients abaixos para consultar os dados envolvidos no sistema:
+
+#### Kafka UI
 
 Interface web para visualizar tópicos, mensagens, consumers e configs do Kafka.
 
-#### Endereço
+##### Endereço
 
 http://localhost:8090/
 
-### Redis Insight
+#### Redis Insight
 
 Interface gráfica para explorar dados, chaves e estatísticas do Redis.
 
-#### Endereço
+##### Endereço
 
 http://localhost:5540/
 
-#### Conexão
+##### Conexão
 
 É necessário adicionar uma base de dados com a Connection URL igual a ```redis://redis:6379```
 
