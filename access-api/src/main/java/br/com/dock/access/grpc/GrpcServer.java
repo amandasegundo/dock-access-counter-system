@@ -7,11 +7,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 
 @Component
+@ConditionalOnProperty(value = "grpc.enabled", havingValue = "true", matchIfMissing = true)
 public class GrpcServer implements CommandLineRunner {
 
     private static final Logger log = LoggerFactory.getLogger(GrpcServer.class);
@@ -20,6 +22,9 @@ public class GrpcServer implements CommandLineRunner {
 
     @Value("${grpc.port}")
     private int port;
+
+    @Value("${grpc.block-until-shutdown:true}")
+    private boolean blockUntilShutdownEnabled;
 
     private Server server;
 
@@ -30,7 +35,9 @@ public class GrpcServer implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
         start();
-        blockUntilShutdown();
+        if (blockUntilShutdownEnabled) {
+            blockUntilShutdown();
+        }
     }
 
     private void start() throws IOException {
