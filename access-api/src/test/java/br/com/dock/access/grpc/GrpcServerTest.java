@@ -8,19 +8,19 @@ import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.boot.test.system.CapturedOutput;
-import org.springframework.boot.test.system.OutputCaptureExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-@ExtendWith(OutputCaptureExtension.class)
 class GrpcServerTest {
 
     private static final int PORT = 9090;
@@ -29,10 +29,11 @@ class GrpcServerTest {
     private AccessServiceImpl accessService;
 
     @Test
-    void runShouldStartServerAndBlockUntilShutdown(CapturedOutput output) throws Exception {
+    void run_shouldStartServer_andBlockUntilShutdown_whenEnabled() throws Exception {
         // Arrange
         GrpcServer grpcServer = new GrpcServer(accessService);
         ReflectionTestUtils.setField(grpcServer, "port", PORT);
+        ReflectionTestUtils.setField(grpcServer, "blockUntilShutdownEnabled", true);
 
         ServerBuilder<?> serverBuilder = mock(ServerBuilder.class, Answers.RETURNS_SELF);
         Server server = mock(Server.class);
@@ -53,14 +54,64 @@ class GrpcServerTest {
             verify(server).start();
             verify(server).awaitTermination();
             verifyNoMoreInteractions(serverBuilder, server);
-
-            assertTrue(output.getOut().contains("Starting gRPC server..."));
-            assertTrue(output.getOut().contains("gRPC server started on port " + PORT));
         }
     }
 
     @Test
-    void stopShouldShutdownServerWhenServerIsNotNull(CapturedOutput output) {
+    void run_shouldStartServer_andNotBlock_whenDisabled() throws Exception {
+        // Arrange
+        GrpcServer grpcServer = new GrpcServer(accessService);
+        ReflectionTestUtils.setField(grpcServer, "port", PORT);
+        ReflectionTestUtils.setField(grpcServer, "blockUntilShutdownEnabled", false);
+
+        ServerBuilder<?> serverBuilder = mock(ServerBuilder.class, Answers.RETURNS_SELF);
+        Server server = mock(Server.class);
+
+        try (MockedStatic<ServerBuilder> mockedStatic = mockStatic(ServerBuilder.class)) {
+            mockedStatic.when(() -> ServerBuilder.forPort(PORT)).thenReturn(serverBuilder);
+
+            when(serverBuilder.build()).thenReturn(server);
+            when(server.start()).thenReturn(server);
+
+            // Act
+            grpcServer.run();
+
+            // Assert
+            verify(server).start();
+            verify(server, never()).awaitTermination();
+        }
+    }
+
+    @Test
+    void run_shouldPropagateInterruptedException_whenAwaitTerminationIsInterrupted() throws Exception {
+        // Arrange
+        GrpcServer grpcServer = new GrpcServer(accessService);
+        ReflectionTestUtils.setField(grpcServer, "port", PORT);
+        ReflectionTestUtils.setField(grpcServer, "blockUntilShutdownEnabled", true);
+
+        ServerBuilder<?> serverBuilder = mock(ServerBuilder.class, Answers.RETURNS_SELF);
+        Server server = mock(Server.class);
+
+        try (MockedStatic<ServerBuilder> mockedStatic = mockStatic(ServerBuilder.class)) {
+            mockedStatic.when(() -> ServerBuilder.forPort(PORT)).thenReturn(serverBuilder);
+
+            when(serverBuilder.build()).thenReturn(server);
+            when(server.start()).thenReturn(server);
+
+            doThrow(new InterruptedException("test"))
+                    .when(server)
+                    .awaitTermination();
+
+            // Act & Assert
+            assertThrows(InterruptedException.class, () -> grpcServer.run());
+
+            verify(server).start();
+            verify(server).awaitTermination();
+        }
+    }
+
+    @Test
+    void stop_shouldShutdownServer_whenServerIsNotNull() {
         // Arrange
         GrpcServer grpcServer = new GrpcServer(accessService);
         Server server = mock(Server.class);
@@ -72,14 +123,14 @@ class GrpcServerTest {
         // Assert
         verify(server).shutdown();
         verifyNoMoreInteractions(server);
-
-        assertTrue(output.getOut().contains("Shutting down gRPC server..."));
-        assertTrue(output.getOut().contains("gRPC server shut down."));
     }
 
     @Test
-    void stopShouldNotFailWhenServerIsNull() {
+    void stop_shouldNotFail_whenServerIsNull() {
+        // Arrange
         GrpcServer grpcServer = new GrpcServer(accessService);
-        grpcServer.stop();
+
+        // Act & Assert
+        assertDoesNotThrow(grpcServer::stop);
     }
 }

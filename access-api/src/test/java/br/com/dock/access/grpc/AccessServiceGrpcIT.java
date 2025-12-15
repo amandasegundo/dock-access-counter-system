@@ -56,13 +56,13 @@ class AccessServiceGrpcIT {
         private AccessEventMessage lastPayload;
 
         TestKafkaEventProducer() {
-            super(null, null);
+            super(null);
         }
 
         @Override
         public AccessEventResponse processMessage(AccessEventMessage payload) {
             this.lastPayload = payload;
-            return new AccessEventResponse(true, "");
+            return new AccessEventResponse(true, "Message processed successfully.");
         }
 
         public AccessEventMessage getLastPayload() {
@@ -117,6 +117,7 @@ class AccessServiceGrpcIT {
         // Assert
         assertNotNull(response);
         assertTrue(response.getSuccess());
+        assertEquals("Message processed successfully.", response.getMessage());
 
         AccessEventMessage sent = kafkaEventProducer.getLastPayload();
 
