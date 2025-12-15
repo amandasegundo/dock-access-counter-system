@@ -7,6 +7,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.random.RandomGenerator;
+
 @Service
 public class AccessCounterService {
 
@@ -26,20 +31,18 @@ public class AccessCounterService {
     public void process(AccessEventMessage message){
         log.info("Message received successfully: requestId [{}]", message.getRequestId());
 
-        long count = increment();
+        long count = -1L;
+        try {
+            count = redisClient.incrementWithLimit(KEY, accessLimit);
+            System.out.println(count);
+        } catch (IOException e) {
+            log.error("Error when incrementing", e);
+        }
 
         if (count == -1L) {
             log.warn("Access limit reached [{}]", accessLimit);
         } else {
             log.info("Access counted, current count [{}]", count);
-        }
-    }
-
-    private long increment() {
-        if (isValid()) {
-            return redisClient.increment(KEY);
-        } else {
-            return -1;
         }
     }
 
