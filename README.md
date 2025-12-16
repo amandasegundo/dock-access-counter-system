@@ -23,8 +23,11 @@ As tecnologias foram escolhidas baseando-se nas tecnologias utilizadas nos proje
 |------------------|-----------|
 | gRPC | Tipo de comunicação entre serviços de forma rápida, eficiente e tipada.|
 | Spring Boot | Framework que fornece a base da aplicação, gerenciamento de dependências e suporte a testes unitários e de integração.|
-| Kafka | Plataforma de streaming utilizada para produção e consumo de mensagens, permitindo a ingestão de eventos de acesso de forma assíncrona e escalável.
-| Redis | Banco de dados em memória utilizado para armazenar e consultar a contagem de acessos.
+| Kafka | Plataforma de streaming utilizada para produção e consumo de mensagens, permitindo a ingestão de eventos de acesso de forma assíncrona e escalável.|
+| Redis | Banco de dados em memória utilizado para armazenar e consultar a contagem de acessos.|
+| Podman | Utilizado como ferramenta de orquestração local para execução do ambiente em contêineres, permitindo simular múltiplos serviços de forma simples, como alternativa ao Kubernetes.|
+| NGINX | Load balancer utilizado para distribuir as requisições entre as instâncias do serviço de API, evitando sobrecarga em uma única instância.|
+
 
 ### access-api
 
@@ -81,6 +84,12 @@ A API pode retornar uma resposta de sucesso ou uma de falha.
 
 Ela realiza a contabilização por meio de um script na linguagem Lua que, atua diretamente no servidor Redis, tornando a operação atômica afim de eliminar problemas de concorrência.
 
+## Escalabilidade
+
+Foram utilizadas **10 instâncias do serviço de API** para suportar um alto volume de requisições concorrentes, permitindo a absorção de picos de entrada sem degradação do serviço.
+
+O **serviço consumidor** foi escalado para **3 instâncias**, considerando que o processamento realizado é simples e rápido, além de estar alinhado ao número de partições do tópico Kafka, garantindo paralelismo máximo no consumo das mensagens sem gerar instâncias ociosas.
+
 ## Docker Compose
 
 O projeto e as tecnologias consumidas estão em containers e foi utilizado o Docker Compose.
@@ -93,7 +102,7 @@ Recomenda-se utilizar o Podman para executar.
 |---------------------------------------|------------------------------------------------------------------------|
 | `podman machine start`                | Inicia a máquina virtual do Podman.                                    |
 | `podman compose down -v`              | Derruba todos os containers e remove volumes associados.               |
-| `podman compose up -d --build`        | Sobe os containers em modo detached, reconstruindo as imagens antes.   |
+| `podman compose up -d --build --scale access-api=10 --scale access-consumer=3`        | Sobe os containers em modo detached, reconstruindo as imagens antes.   |
 
 #### Clients
 
