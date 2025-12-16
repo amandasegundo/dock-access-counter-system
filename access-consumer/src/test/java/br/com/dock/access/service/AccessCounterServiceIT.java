@@ -11,13 +11,12 @@ import org.springframework.context.annotation.Primary;
 
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SpringBootTest(
         webEnvironment = SpringBootTest.WebEnvironment.NONE,
         properties = {
-                "app.access-limit=100"
+                "app.access-limit=3"
         }
 )
 class AccessCounterServiceIT {
@@ -46,70 +45,23 @@ class AccessCounterServiceIT {
             this.value = value;
         }
 
-        @Override
-        public long getLong(String key) {
+        public long getValue() {
             return value;
         }
 
         @Override
-        public long increment(String key) {
+        public long incrementWithLimit(String key, long limit) {
+            if (value >= limit) {
+                return -1L;
+            }
             return ++value;
         }
     }
 
     @Test
-    void shouldReturnTrueWhenBelowLimit() {
-        // Arrange
-        redisClient.setValue(50L);
-
-        // Act
-        boolean result = accessCounterService.isValid();
-
-        // Assert
-        assertTrue(result);
-    }
-
-    @Test
-    void shouldReturnFalseWhenAtLimit() {
-        // Arrange
-        redisClient.setValue(100L);
-
-        // Act
-        boolean result = accessCounterService.isValid();
-
-        // Assert
-        assertFalse(result);
-    }
-
-    @Test
-    void shouldReturnFalseWhenAboveLimit() {
-        // Arrange
-        redisClient.setValue(150L);
-
-        // Act
-        boolean result = accessCounterService.isValid();
-
-        // Assert
-        assertFalse(result);
-    }
-
-    @Test
     void processShouldIncrementWhenBelowLimit() {
         // Arrange
-        redisClient.setValue(99L);
-        AccessEventMessage message = new AccessEventMessage();
-        message.setRequestId(UUID.randomUUID());
-
-        // Act
-        accessCounterService.process(message);
-
-        assertTrue(accessCounterService.isValid() == false);
-    }
-
-    @Test
-    void processShouldNotIncrementWhenAtLimitOrAbove() {
-        // Arrange
-        redisClient.setValue(100L);
+        redisClient.setValue(1L);
         AccessEventMessage message = new AccessEventMessage();
         message.setRequestId(UUID.randomUUID());
 
@@ -117,6 +69,34 @@ class AccessCounterServiceIT {
         accessCounterService.process(message);
 
         // Assert
-        assertFalse(accessCounterService.isValid());
+        assertEquals(2L, redisClient.getValue());
+    }
+
+    @Test
+    void processShouldNotIncrementWhenAtLimit() {
+        // Arrange
+        redisClient.setValue(3L);
+        AccessEventMessage message = new AccessEventMessage();
+        message.setRequestId(UUID.randomUUID());
+
+        // Act
+        accessCounterService.process(message);
+
+        // Assert
+        assertEquals(3L, redisClient.getValue());
+    }
+
+    @Test
+    void processShouldNotIncrementWhenAboveLimit() {
+        // Arrange
+        redisClient.setValue(5L);
+        AccessEventMessage message = new AccessEventMessage();
+        message.setRequestId(UUID.randomUUID());
+
+        // Act
+        accessCounterService.process(message);
+
+        // Assert
+        assertEquals(5L, redisClient.getValue());
     }
 }

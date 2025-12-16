@@ -17,23 +17,13 @@ import java.nio.file.Paths;
 @Service
 public class RedisClient {
 
-    private static final String SCRIPT_PATH = "src/main/resources/lua/increment_with_limit.lua";
+    private static final String SCRIPT_PATH = "lua/increment_with_limit.lua";
 
     @Autowired
     private RedissonClient redissonClient;
 
-    public long increment(String key) {
-        RAtomicLong atomic = redissonClient.getAtomicLong(key);
-        return atomic.incrementAndGet();
-    }
-
-    public long getLong(String key) {
-        RAtomicLong atomic = redissonClient.getAtomicLong(key);
-        return atomic.get();
-    }
-
     public long incrementWithLimit(String key, long limit) throws IOException {
-        var resource = new ClassPathResource("lua/increment_with_limit.lua");
+        var resource = new ClassPathResource(SCRIPT_PATH);
         String script;
         try (var in = resource.getInputStream()) {
             script = StreamUtils.copyToString(in, StandardCharsets.UTF_8);

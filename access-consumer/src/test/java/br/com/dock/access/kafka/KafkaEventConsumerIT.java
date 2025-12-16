@@ -10,8 +10,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Primary;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 
 @SpringBootTest(
         webEnvironment = SpringBootTest.WebEnvironment.NONE,
@@ -52,13 +50,15 @@ class KafkaEventConsumerIT {
             this.value = value;
         }
 
-        @Override
-        public long getLong(String key) {
+        public long getValue() {
             return value;
         }
 
         @Override
-        public long increment(String key) {
+        public long incrementWithLimit(String key, long limit) {
+            if (value >= limit) {
+                return -1L;
+            }
             return ++value;
         }
     }
@@ -90,11 +90,8 @@ class KafkaEventConsumerIT {
         // Act
         kafkaEventConsumer.listen(json);
 
-        long current = redisClient.getLong("ACCESS_COUNT");
-        assertEquals(1L, current);
-
-        boolean stillValid = accessCounterService.isValid();
-        assertTrue(stillValid);
+        // Assert
+        assertEquals(1L, redisClient.getValue());
     }
 
     @Test
@@ -107,7 +104,6 @@ class KafkaEventConsumerIT {
         kafkaEventConsumer.listen(invalidJson);
 
         // Assert
-        long current = redisClient.getLong("ACCESS_COUNT");
-        assertEquals(0L, current);
+        assertEquals(0L, redisClient.getValue());
     }
 }

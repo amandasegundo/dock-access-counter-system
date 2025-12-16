@@ -8,9 +8,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.random.RandomGenerator;
 
 @Service
 public class AccessCounterService {
@@ -44,10 +41,5 @@ public class AccessCounterService {
         } else {
             log.info("Access counted, current count [{}]", count);
         }
-    }
-
-    public boolean isValid(){
-        long newCount = redisClient.getLong(KEY) + 1;
-        return newCount <= accessLimit;
     }
 }
