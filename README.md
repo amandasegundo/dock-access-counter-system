@@ -19,6 +19,8 @@ Este projeto tem como objetivo realizar o desenvolvimento de um desafio da equip
 
 As tecnologias foram escolhidas baseando-se nas tecnologias utilizadas nos projetos da própria Dock.
 
+![Tecnologias](docs/tecnologias.png)
+
 | Tecnologia       | Descrição |
 |------------------|-----------|
 | gRPC | Tipo de comunicação entre serviços de forma rápida, eficiente e tipada.|
@@ -89,6 +91,38 @@ Ela realiza a contabilização por meio de um script na linguagem Lua que, atua 
 Foram utilizadas **10 instâncias do serviço de API** para suportar um alto volume de requisições concorrentes, permitindo a absorção de picos de entrada sem degradação do serviço.
 
 O **serviço consumidor** foi escalado para **3 instâncias**, considerando que o processamento realizado é simples e rápido, além de estar alinhado ao número de partições do tópico Kafka, garantindo paralelismo máximo no consumo das mensagens sem gerar instâncias ociosas.
+
+## Resultados do teste
+
+O teste foi executado de forma **controlada**, com o objetivo de validar a estabilidade, consistência e o comportamento do sistema sob carga sustentada, e **não como um teste de estresse**. 
+
+Durante a execução, foram processadas aproximadamente **1 milhão de requisições gRPC**, mantendo tempos de resposta médios em torno de **30 ms** e uma **baixa taxa de erro (0,03%)**, indicando que o sistema se manteve estável ao longo de todo o teste.
+
+### Configuração do JMeter
+
+| Parâmetro                    | Valor                                   |
+|------------------------------|-----------------------------------------|
+| Total de requisições         | 1.010.000                               |
+| Number of Threads (users)    | 50                                      |
+| Ramp-up period (seconds)     | 30 (≈ 1,67 requisições/s por thread)    |
+| Loop Count                   | 20.200                                  |
+| Cálculo de requisições       | 50 × 20.200 = 1.010.000                 |
+
+
+### Métricas
+
+| Métrica                  | Valor          |
+|--------------------------|----------------|
+| Total de requisições     | 1.014.890      |
+| Tempo médio de resposta  | 30 ms          |
+| Mediana                  | 26 ms          |
+| Percentil 90%            | 57 ms          |
+| Percentil 95%            | 70 ms          |
+| Percentil 99%            | 103 ms         |
+| Tempo mínimo             | 0 ms           |
+| Tempo máximo             | 1576 ms        |
+| Throughput médio         | 3 req/s        |
+| Taxa de erro             | 0,03%          |
 
 ## Docker Compose
 
