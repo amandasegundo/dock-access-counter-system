@@ -51,7 +51,7 @@ class AccessServiceImplTest {
                 .build();
 
         AccessEventMessage mappedMessage = new AccessEventMessage();
-        AccessEventResponse eventResponse = new AccessEventResponse(true, "");
+        AccessEventResponse eventResponse = new AccessEventResponse(true, "Message processed successfully.");
 
         when(accessEventMapper.fromProto(request)).thenReturn(mappedMessage);
         when(kafkaEventProducer.processMessage(mappedMessage)).thenReturn(eventResponse);
@@ -72,6 +72,6 @@ class AccessServiceImplTest {
         AddAccessResponse grpcResponse = responseCaptor.getValue();
         assertNotNull(grpcResponse);
         assertTrue(grpcResponse.getSuccess());
-        assertEquals("", grpcResponse.getMessage());
+        assertEquals("Message processed successfully.", grpcResponse.getMessage());
     }
 }

@@ -2,7 +2,7 @@
 app:
   kafka:
     topic: access-topic
-  access-limit: 1000000
+  access-limit: 50
 
 # KAFKA
 spring:
