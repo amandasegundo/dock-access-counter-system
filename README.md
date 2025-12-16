@@ -15,25 +15,24 @@ Este projeto tem como objetivo realizar o desenvolvimento de um desafio da equip
 
 ![Diagrama da arquitetura no modelo C4 Level](docs/access-counter-c4-level.drawio.png)
 
+### Tecnologias
+
+As tecnologias foram escolhidas baseando-se nas tecnologias utilizadas nos projetos da própria Dock.
+
+| Tecnologia       | Descrição |
+|------------------|-----------|
+| gRPC | Tipo de comunicação entre serviços de forma rápida, eficiente e tipada.|
+| Spring Boot | Framework que fornece a base da aplicação, gerenciamento de dependências e suporte a testes unitários e de integração.|
+| Kafka | Plataforma de streaming utilizada para produção e consumo de mensagens, permitindo a ingestão de eventos de acesso de forma assíncrona e escalável.
+| Redis | Banco de dados em memória utilizado para armazenar e consultar a contagem de acessos.
+
 ### access-api
 
 Trata-se de uma API gRPC responsável por receber os acessos, por meio do método ```AddAccess```, e enviá-los ao tópico Kafka para serem contabilizados.
 
-Ela também verifica a quantidade de acessos, e, caso já tenha atigindo o limite, não processa.
-
-#### Tecnologias
-
-| Tecnologia       | Descrição                                                                 |
-|------------------|---------------------------------------------------------------------------|
-| gRPC         | Tipo de comunicação entre serviços de forma rápida, eficiente e tipada.   |
-| Protobuf Plugin | Gera automaticamente todas as classes necessárias para gRPC.           |
-| Spring Boot  | Fornece a base da aplicação e gerenciamento de dependências.              |
-| Spring Kafka        | Usado na produção de mensagens para ingestão de eventos de acessos no Kafka.                  |
-| Redisson        | Cliente do banco de dados Redis que armazena a contagem de acessos a serem consultados.                   |
-
 #### Payload
 
-O payload é baseado no ```access.proto``` e tem como exemplo:
+O payload é baseado no ```access.proto``` e é o mesmo enviado ao tópico ```access-topic```, tem como exemplo:
 
 ```json
 {
@@ -63,7 +62,7 @@ A API pode retornar uma resposta de sucesso ou uma de falha.
 ```json
 {
     "success": true,
-    "message": ""
+    "message": "Message processed successfully."
 }
 ```
 
@@ -72,22 +71,15 @@ A API pode retornar uma resposta de sucesso ou uma de falha.
 ```json
 {
     "success": false,
-    "message": "Access limit reached, message was not processed."
+    "message": "Error processing message."
 }
 ```
 
 ### access-consumer
 
-É uma aplicação worker que consome os acessos que estão no tópico Kafka e realiza a contabilização.
+É uma aplicação worker que consome os acessos que estão no tópico ```access-topic```.
 
-#### Tecnologias
-
-| Tecnologia       | Descrição                                                                 |
-|------------------|---------------------------------------------------------------------------|
-| Spring Boot  | Fornece a base da aplicação e gerenciamento de dependências.              |
-| Spring Kafka        | Usado no consumo de mensagens dos eventos de acessos no Kafka para a contabilização.                  |
-| Redisson        | Cliente do banco de dados Redis que persiste a contabilização.                   |
-| Jackson Databind | Usado para converter JSON em objetos Java. |
+Ela realiza a contabilização por meio de um script na linguagem Lua que, atua diretamente no servidor Redis, tornando a operação atômica afim de eliminar problemas de concorrência.
 
 ## Docker Compose
 
